@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>침수지도</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .header {
+            width: 100%;
+            height: 15%;
+            font-size: 30px;
+        }
+
+        .nav {
+            width: 15%;
+            height: 85%;
+            float: left;
+        }
+
+        .section {
+            width: 85%;
+            height: 85%;
+            float: left;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div style="position: absolute; left: 10px;">
+            <p>침수지도</p>
+        </div>
+    </header>
+    <nav class="nav">
+        <div style="width: 100%; height: 100%;">
+            <fieldset>
+                <legend>침수심 설정</legend>
+                <input type="text" placeholder="강수량 입력 예 : 100">
+                <input type="button" value="적용"><br>
+                <p style="font-size: 5px; color: red;">
+                    침수심이란?
+                </p>
+                <P style="font-size: 5px; color:  red;">
+                    100년 빈도의 강우량을 가정한 가상 홍수 피해 수심을 나타내는 말로
+                    (파고 - 현재 지역의 해발고도)로 나타냄
+                </P>
+            </fieldset>
+            <br>
+            <fieldset>
+                <legend>침수심 표시 지역 설정</legend>
+                <details>
+                    <summary>부산시 남구</summary>
+                    <form>
+                        <select id="areaSelect" onchange="showSelectedArea()">
+                            <option value="">지역 선택</option>
+                            <option value="daeyeon1">부산광역시 대연 1동</option>
+                            <option value="daeyeon2">부산광역시 대연 2동</option>
+                        </select>
+                    </form>
+                </details>
+            </fieldset>
+        </div>
+    </nav>
+    <section class="section">
+        <div id="map" style="width:100%;height:100%;"></div>
+        <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d5f0d7bf9887a182c9f4e0ef98619ac3"></script>
+        <script>
+            var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+                mapOption = {
+                    center: new kakao.maps.LatLng(35.134080249513474, 129.10317348438963), // 지도의 중심좌표
+                    level: 6, // 지도의 확대 레벨
+                    mapTypeId: kakao.maps.MapTypeId.ROADMAP // 지도종류
+                };
+            // 지도를 생성한다
+            var map = new kakao.maps.Map(mapContainer, mapOption);
+            var polygons = [];
+
+            var polygonPositions = {
+                daeyeon1: [
+                    new kakao.maps.LatLng(35.135750, 129.100869),
+                    new kakao.maps.LatLng(35.133664, 129.105280),
+                    new kakao.maps.LatLng(35.131578, 129.104699),
+                    new kakao.maps.LatLng(35.131726, 129.100498)
+                ],
+                daeyeon2: [
+                    new kakao.maps.LatLng(35.139289, 129.101165),
+                    new kakao.maps.LatLng(35.138411, 129.105232),
+                    new kakao.maps.LatLng(35.135326, 129.105010),
+                    new kakao.maps.LatLng(35.134274, 129.100523)
+                ]
+            }
+            function showSelectedArea() {
+                // 이전에 표시된 다각형 제거
+                removePolygons();
+
+                var areaSelect = document.getElementById("areaSelect");
+                var selectedValue = areaSelect.value;
+
+                if (selectedValue !== "") {
+                    // 선택한 지역의 다각형 생성
+                    var selectedPolygon = new kakao.maps.Polygon({
+                        path: polygonPositions[selectedValue], // 선택한 지역의 좌표 배열
+                        strokeWeight: 2, // 선의 두께
+                        strokeColor: '#FF0000', // 선의 색상
+                        strokeOpacity: 0.8, // 선의 투명도
+                    });
+
+                    // 선택한 지역의 다각형 지도에 표시
+                    selectedPolygon.setMap(map);
+
+                    // 생성된 다각형을 배열에 추가
+                    polygons.push(selectedPolygon);
+
+                    // 선택한 지역으로 지도 중심 좌표 변경
+                    map.setCenter(new kakao.maps.LatLng(35.1375, 129.103));
+                }
+            }
+
+            // 이전에 표시된 다각형 제거
+            function removePolygons() {
+                if (polygons.length > 0) {
+                    for (var i = 0; i < polygons.length; i++) {
+                        polygons[i].setMap(null);
+                    }
+                    polygons = [];
+                }
+            }
+
+        </script>
+    </section>
+</body>
+
+</html>
